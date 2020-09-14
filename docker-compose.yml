@@ -1,0 +1,80 @@
+version: '3.7'
+
+networks:
+  laravel:
+
+services:
+  nginx:
+    container_name: con_laravel_sample
+    # lokasi source code
+    build:
+      context: ./
+      dockerfile: web.dockerfile
+    # path untuk source di dalam docker
+    volumes:
+      - ./:/var/www
+    image: webserver_laravel:1.0
+    ports:
+      - "8070:80"
+      - "443:443" # SSL PORTS
+    depends_on:
+      - mysql-laravel
+    networks:
+      - laravel
+
+  app:
+    container_name: app_laravel_sample
+    build:
+      context: ./
+      dockerfile: app.dockerfile
+    image: app_laravel:1.0
+    volumes:
+      - ./:/var/www
+    networks:
+      - laravel
+
+  mysql-laravel:
+    image: mysql:5.7
+    container_name: mysql-laravel
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3307:3306"
+    networks:
+      - laravel
+
+  composer:
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    container_name: composer
+    volumes:
+      - ./:/var/www
+    working_dir: /var/www
+    depends_on:
+      - app
+    networks:
+      - laravel
+    entrypoint: ['composer']
+
+  artisan:
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    container_name: artisan
+    volumes:
+      - ./:/var/www:delegated
+    depends_on:
+      - mysql-laravel
+      - app
+    working_dir: /var/www
+    entrypoint: ['php', '/var/www/artisan']
+    networks:
+      - laravel
