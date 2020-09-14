@@ -7,6 +7,7 @@ Root folder information
 LARAVEL
 |-- app.dockerfile
 |-- web.dockerfile
+|-- composer.dockerfile
 |-- laravelVHost.conf
 |-- docker-compose.yml
 |-- app
