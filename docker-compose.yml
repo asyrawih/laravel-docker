@@ -5,7 +5,7 @@ networks:
 
 services:
   nginx:
-    container_name: con_laravel_sample
+    container_name: nginx-laravel
     # lokasi source code
     build:
       context: ./
@@ -23,7 +23,7 @@ services:
       - laravel
 
   app:
-    container_name: app_laravel_sample
+    container_name: laravel
     build:
       context: ./
       dockerfile: app.dockerfile
